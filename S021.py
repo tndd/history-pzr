@@ -1,28 +1,34 @@
 class Status:
-  def __init__(self, enemys, beated_num):
+  def __init__(self, enemys, total_dmg):
     self.enemys = enemys
-    self.beated_num = beated_num
+    self.total_dmg = total_dmg
   
-  # 魔法に対する最大スコア
+  # 魔法に対する最大ダメージ
   def get_score(self, magic):
     ret_score = 0
     ret_enemys = []
     if magic.type == 'all':
       for n in range(len(self.enemys)):
         if self.enemys[n] - magic.dmg <= 0:
-          ret_score += 1
+          ret_score += self.enemys[n]
         else:
           # リスト更新(hpを減らす)
           ret_enemys.append(self.enemys[n] - magic.dmg)
+          ret_score += magic.dmg
     elif magic.type == 'single':
       ret_enemys = self.enemys
       ret_enemys.sort(reverse=True)
+      flg = True
       for idx, enm in enumerate(ret_enemys):
         if enm - magic.dmg <= 0:
           # 要素の取り出し
           ret_enemys.pop(idx)
-          ret_score = 1
-          break
+          ret_score += enm
+          # 要素が一度でも取り出されたか
+          flg = False
+      if flg:
+        ret_enemys[-1] -= magic.dmg
+        ret_score += magic.dmg
     return (ret_score, ret_enemys)
   
 class Magic:
@@ -35,8 +41,12 @@ class Magic:
 N,M,P = list(map(int, input().split()))
 # 敵
 enemys = []
+enemys_backup = []
 for n in range(N):
-  enemys.append(int(input()))
+  fuck = int(input())
+  enemys.append(fuck)
+  enemys_backup.append(fuck)
+enemys_cp = enemys
 # 魔法
 magics = []
 for n in range(M):
@@ -55,15 +65,27 @@ for m in range(1, M + 1):
       mg = magics[m - 1]
       # 左のマスからの追加スコア、敵配列状態
       score, chged_enemys = dp[m][p - magics[m - 1].mp].get_score(magics[m - 1])
-      print(score)
       # 左のマスのスコア
-      pre_beated_num = dp[m][p - magics[m - 1].mp].beated_num
+      pre_total_dmg = dp[m][p - magics[m - 1].mp].total_dmg
       # 状態更新
-      if dp[m - 1][p].beated_num > (pre_beated_num + score):
+      if dp[m - 1][p].total_dmg > (pre_total_dmg + score):
         dp[m][p] = dp[m - 1][p]
       else:
-        dp[m][p] = Status(chged_enemys, pre_beated_num + score)
+        dp[m][p] = Status(chged_enemys, pre_total_dmg + score)
 
-print(dp[M][P].beated_num)
+total = dp[M][P].total_dmg
+cnt = 0
+enemys_backup.sort()
+for enm in enemys_backup:
+  total -= enm
+  if total >= 0:
+    cnt += 1
+
+print(cnt)
+
 
 # 最大のダメージをスコアとして定義したほうがよかったかもしれない
+
+# st = Status([10,50,100], 0)
+# mg = Magic('single', 50, 1)
+# print(st.get_score(mg))
