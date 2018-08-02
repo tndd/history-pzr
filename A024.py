@@ -4,6 +4,8 @@
 # windows -> 144
 # linux -> 8
 
+# ソートしてないのが原因だった
+
 n,k = map(int, input().split())
 all_lst = list(range(1, n * 2 + 1))
 all_value = sum(all_lst)
@@ -11,7 +13,7 @@ all_value = sum(all_lst)
 def dfs(num_lst, idx, cnt):
   if cnt == n:
     total_dif = 0
-    b_lst = list(set(all_lst) - set(num_lst))
+    b_lst = sorted(list(set(all_lst) - set(num_lst)))
     for a,b in zip(num_lst, b_lst):
       total_dif += abs(a - b)
     if total_dif <= k:
