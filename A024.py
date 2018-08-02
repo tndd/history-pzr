@@ -1,5 +1,5 @@
 # linuxとwindowsで実行結果が違う
-# [入力]:
+# [入力]: 5 9
 # [出力]
 # windows -> 144
 # linux -> 8
